@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 
-
 typedef struct Cuboid
 {
 	double length;  
