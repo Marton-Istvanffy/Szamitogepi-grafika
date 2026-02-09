@@ -1,0 +1,1 @@
+# Sz-m-t-g-pi-grafika
