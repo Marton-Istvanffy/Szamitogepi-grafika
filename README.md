@@ -1,1 +1,1 @@
-# Sz-m-t-g-pi-grafika
+# Szamitogepi grafika
