@@ -10,19 +10,22 @@ void init_scene(Scene* scene)
 
 void update_scene(Scene* scene, double time)
 {
-    scene->sphere_rotation += 45.0 * time;
+    scene->sphere_rotation += 75.0 * time;
 }
 
 void render_scene(const Scene* scene)
 {
     int i, j;
-    int slices = 24, stacks = 24;
+    int slices = 20, stacks = 20;
     float r = 0.15;
     float angle;
 
     draw_origin();
 
-    glBegin(GL_QUADS);
+    // glEnable(GL_CULL_FACE);
+    // glCullFace(GL_BACK);
+
+    glBegin(GL_QUADS); 
     for (i = 0; i < 8; ++i) {
         for (j = 0; j < 8; ++j) {
             if ((i + j) % 2 == 0) {
@@ -38,6 +41,12 @@ void render_scene(const Scene* scene)
     }
     glEnd();
 
+    
+    glPushMatrix(); 
+    glTranslatef(0.5, 0.4, 0.0);
+    glRotatef(scene->sphere_rotation, 0.0, 0.0, 1.0);
+    glTranslatef(-0.5, -0.4, 0.0);
+
     glBegin(GL_TRIANGLES);
     glColor3f(1.0, 1.0, 0.0);
     glVertex3f(0.2, 0.2, 0.1);
@@ -46,11 +55,12 @@ void render_scene(const Scene* scene)
     glColor3f(1.0, 0.0, 1.0);
     glVertex3f(0.5, 0.8, 0.1);
     glEnd();
+    glPopMatrix(); 
 
     glPushMatrix();
     glTranslatef(0.5, 0.5, 0.5);
-    glRotatef(scene->sphere_rotation, 0.0, 0.0, 1.0);
-    glColor3f(0.3, 0.0, 0.5);
+    glRotatef(scene->sphere_rotation, 0.0, 0.0, 1.0 );
+    
     for (i = 0; i < stacks; ++i) {
         float lat0 = M_PI * (-0.5 + (float)i / stacks);
         float z0 = sin(lat0);
@@ -65,6 +75,11 @@ void render_scene(const Scene* scene)
             float lng = 2 * M_PI * (float)j / slices;
             float x = cos(lng);
             float y = sin(lng);
+            if (j % 2 == 0) {
+                glColor3f(0.0, 0.0, 0.0);
+            } else {
+                glColor3f(1, 1, 1);
+            }
 
             glVertex3f(r * x * zr0, r * y * zr0, r * z0);
             glVertex3f(r * x * zr1, r * y * zr1, r * z1);
@@ -75,7 +90,7 @@ void render_scene(const Scene* scene)
 
     glPushMatrix();
     glTranslatef(0.2, 0.8, 0.0);
-    glColor3f(0.0, 0.0, 1.0);
+    glColor3f(0.5, 0.0, 1.0);
     glBegin(GL_TRIANGLE_STRIP);
     for (i = 0; i <= 16; ++i) {
         angle = i * 2.0 * M_PI / 16.0;
