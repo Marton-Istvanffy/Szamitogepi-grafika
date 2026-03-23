@@ -35,16 +35,16 @@ void handle_game_events(Game* game) {
                 game->is_running = false;
                 break;
             case SDL_SCANCODE_W:
-                set_left_pad_speed(&(game->pong), -350);
+                set_left_pad_speed(&(game->pong), -500);
                 break;
             case SDL_SCANCODE_S:
-                set_left_pad_speed(&(game->pong), +350);
+                set_left_pad_speed(&(game->pong), +500);
                 break;
             case SDL_SCANCODE_UP:
-                set_right_pad_speed(&(game->pong), -350);
+                set_right_pad_speed(&(game->pong), -500);
                 break;
             case SDL_SCANCODE_DOWN:
-                set_right_pad_speed(&(game->pong), +350);
+                set_right_pad_speed(&(game->pong), +500);
                 break;
             case SDL_SCANCODE_KP_PLUS:
             case SDL_SCANCODE_O:

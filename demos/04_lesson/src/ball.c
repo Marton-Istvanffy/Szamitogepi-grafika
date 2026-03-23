@@ -25,7 +25,7 @@ void render_ball(Ball* ball) {
     
     glBegin(GL_TRIANGLE_FAN);
     glColor3f(0.4, 0.1, 0.2);
-    glVertex2f(0.3, 0.2);
+    glVertex2f(0, 0);
     
     for (double angle = 0; angle <= 2.0 * M_PI + 0.05; angle += 0.1) {
         glColor3f(0.5 + 0.5 * cos(angle), 0.8, 0.9);
