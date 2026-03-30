@@ -25,7 +25,8 @@ void init_app(App* app, int width, int height)
         return;
     }
 
-    inited_loaders = IMG_Init(IMG_INIT_PNG);
+    /* JPG és PNG támogatás bekapcsolása egyszerre */
+    inited_loaders = IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
     if (inited_loaders == 0) {
         printf("[ERROR] IMG initialization error: %s\n", IMG_GetError());
         return;
@@ -120,6 +121,18 @@ void handle_app_events(App* app)
             case SDL_SCANCODE_DOWN:
                 set_camera_vertical_speed(&(app->camera), -1);
                 break;
+            case SDL_SCANCODE_I:
+                app->scene.house_position.y += 0.5f;
+                break;
+            case SDL_SCANCODE_K:
+                app->scene.house_position.y -= 0.5f;
+                break;
+            case SDL_SCANCODE_J:
+                app->scene.house_position.x -= 0.5f;
+                break;
+            case SDL_SCANCODE_L:
+                app->scene.house_position.x += 0.5f;
+                break;
             default:
                 break;
             }
@@ -175,7 +188,7 @@ void update_app(App* app)
     app->uptime = current_time;
 
     update_camera(&(app->camera), elapsed_time);
-    update_scene(&(app->scene));
+    update_scene(&(app->scene), elapsed_time);
 }
 
 void render_app(App* app)

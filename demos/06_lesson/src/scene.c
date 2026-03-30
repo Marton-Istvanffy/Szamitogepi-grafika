@@ -5,21 +5,44 @@
 void init_scene(Scene* scene)
 {
     load_model(&(scene->cube), "assets/models/cube.obj");
-    scene->texture_id = load_texture("assets/textures/cube.png");
+    scene->cube_texture_id = load_texture("assets/textures/cube.png");
+
+    load_model(&(scene->house), "assets/models/house.obj");
+    scene->house_texture_id = load_texture("assets/textures/house.png");
+
+    load_model(&(scene->duck), "assets/models/kacsa.obj");
+    scene->duck_texture_id = load_texture("assets/textures/duck.png");
 
     scene->material.ambient.red = 1.0f;
     scene->material.ambient.green = 1.0f;
     scene->material.ambient.blue = 1.0f;
-
-    scene->material.diffuse.red = 1.0f;
-    scene->material.diffuse.green = 1.0f;
-    scene->material.diffuse.blue = 1.0f;
-
+    scene->material.diffuse.red = 0.5f;
+    scene->material.diffuse.green = 0.8f;
+    scene->material.diffuse.blue = 0.5f;
     scene->material.specular.red = 0.0f;
     scene->material.specular.green = 0.0f;
     scene->material.specular.blue = 0.0f;
-
     scene->material.shininess = 0.0f;
+
+    scene->duck_rotation = 0.0f; 
+    
+    scene->duck_material.ambient.red = 1.0f;
+    scene->duck_material.ambient.green = 1.0f;
+    scene->duck_material.ambient.blue = 1.0f;
+    
+    scene->duck_material.diffuse.red = 1.0f;
+    scene->duck_material.diffuse.green = 1.0f;
+    scene->duck_material.diffuse.blue = 1.0f;
+    
+    scene->duck_material.specular.red = 0.0f;
+    scene->duck_material.specular.green = 0.0f;
+    scene->duck_material.specular.blue = 0.0f;
+    scene->duck_material.shininess = 0.0f;
+
+    scene->house_rotation = 0.0f;
+    scene->house_position.x = 4.0f;
+    scene->house_position.y = 0.0f;
+    scene->house_position.z = 0.0f;
 }
 
 void set_lighting(void)
@@ -64,47 +87,55 @@ void set_material(const Material* material)
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &(material->shininess));
 }
 
-void update_scene(Scene* scene)
+void update_scene(Scene* scene, double time)
 {
-    (void)scene;
+    scene->house_rotation += 45.0f * time;
+    if (scene->house_rotation > 360.0f) {
+        scene->house_rotation -= 360.0f;
+    }
+    
+    /* --- KACSA FORGATÁSÁNAK FRISSÍTÉSE --- */
+    scene->duck_rotation += 60.0f * time; 
+    
+    if (scene->duck_rotation > 360.0f) {
+        scene->duck_rotation -= 360.0f;
+    }
 }
 
 void render_scene(const Scene* scene)
 {
-    int i;
-    int j;
-
     set_material(&(scene->material));
     set_lighting();
     draw_origin();
 
-    glBindTexture(GL_TEXTURE_2D, scene->texture_id);
-
-    for (i = 0; i < 4; i++) {
-        for (j = 0; j < 4; j++) {
-            glPushMatrix();
-            glTranslatef((float)i * 3.0f, (float)j * 3.0f, 0.0f);
-            draw_model(&(scene->cube));
-            glPopMatrix();
-        }
-    }
+    set_material(&(scene->duck_material));
+    
+    glBindTexture(GL_TEXTURE_2D, scene->duck_texture_id);
+    glPushMatrix();
+    
+    glTranslatef(0.0f, 0.0f, -5.0f); 
+    
+    // Kacsa forgatása
+    glRotatef(scene->duck_rotation, 0.0f, 0.0f, 1.0f);
+    
+    // Kacsa méretének állítása
+    glScalef(0.5f, 0.5f, 0.5f); 
+    
+    draw_model(&(scene->duck));
+    glPopMatrix();
 }
 
 void draw_origin(void)
 {
     glBegin(GL_LINES);
-
     glColor3f(1.0f, 0.0f, 0.0f);
     glVertex3f(0.0f, 0.0f, 0.0f);
     glVertex3f(1.0f, 0.0f, 0.0f);
-
     glColor3f(0.0f, 1.0f, 0.0f);
     glVertex3f(0.0f, 0.0f, 0.0f);
     glVertex3f(0.0f, 1.0f, 0.0f);
-
     glColor3f(0.0f, 0.0f, 1.0f);
     glVertex3f(0.0f, 0.0f, 0.0f);
     glVertex3f(0.0f, 0.0f, 1.0f);
-
     glEnd();
 }
