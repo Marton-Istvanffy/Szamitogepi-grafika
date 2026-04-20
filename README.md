@@ -4,7 +4,6 @@
 
 ## 1. Koncepció
 A projekt egy atmoszferikus, 3 dimenziós interaktív jelenetet valósít OpenGL alapokon. A középpontban egy részletesen kidolgozott, működő Rubik-kocka áll, amely egy sötét és ködös szobában egy asztalon helyezkedik el. A kockát és környzeteét egy asztali lámpa világítja meg. Az egyszerűség kedvéért egy standard 3x3-as Rubik-kockát fogok alapul venni. 
-## Esetleg ki is lehessen majd választani, hogy 2x2-es, 3x3-as vagy 4x4-es kockát szeretnénk forgatni?
 
 ## 2. Technikai Specifikáció
 
