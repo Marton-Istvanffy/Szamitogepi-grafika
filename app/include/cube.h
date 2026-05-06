@@ -1,21 +1,25 @@
 #ifndef CUBE_H
 #define CUBE_H
 
-#include <cglm/cglm.h>
+#include <stdbool.h>
+#include "math3d.h"
 
 typedef struct {
-    vec3 position;          // A kocka aktuális helye a 3x3-as rácsban
-    mat4 modelMatrix;       // A kocka saját transzformációs mátrixa (pozíció + forgatás)
-    unsigned int vao;       // A kocka geometriája
+    float transform[16];
+    float colors[6][3];
 } SubCube;
 
 typedef struct {
-    SubCube subcubes[27];
-    int isAnimating;
-    float animationAngle;
-} RubiksCube;
+    SubCube pieces[27];
+    bool is_dragging;
+    int drag_axis;
+    float drag_layer_coord;
+    float drag_angle;
+    int picked_piece_id;
+} RubikCube;
 
-void init_rubiks_cube(RubiksCube* cube);
-void rotate_face(RubiksCube* cube, int faceIndex, float angle); // faceIndex: pl. 0=Top, 1=Bottom, stb.
+void cube_init(RubikCube* cube);
+void cube_snap_and_bake(RubikCube* cube);
+void cube_scramble(RubikCube* cube);
 
 #endif

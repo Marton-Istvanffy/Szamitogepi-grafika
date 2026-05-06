@@ -24,6 +24,8 @@ void render_scene(const App* app) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
+    // 1. FEJLÁMPA HATÁS: A fény pozícióját a kamera beállítása ELŐTT adjuk meg (0,0,0)
+    // Így a fény mindig a kamerával együtt fog mozogni!
     GLfloat light_pos[] = { 0.0f, 0.0f, 0.0f, 1.0f };
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
 
@@ -34,9 +36,10 @@ void render_scene(const App* app) {
               pos.x + front.x, pos.y + front.y, pos.z + front.z,
               up.x, up.y, up.z);
 
+    // 2. KIEGYENLÍTETT FÉNYEK: Erős Ambient (Környezeti) és enyhe Diffúz (Térbeli) fény
     float in = app->lighting.intensity;
-    GLfloat light_amb[]  = { in * 0.7f, in * 0.7f, in * 0.7f, 1.0f }; // Alapfény minden oldalra
-    GLfloat light_diff[] = { in * 0.4f, in * 0.4f, in * 0.4f, 1.0f };
+    GLfloat light_amb[]  = { in * 0.7f, in * 0.7f, in * 0.7f, 1.0f }; // Erős alapfény minden oldalra
+    GLfloat light_diff[] = { in * 0.4f, in * 0.4f, in * 0.4f, 1.0f }; // Finom 3D térhatás
 
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_amb);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diff);
@@ -44,6 +47,7 @@ void render_scene(const App* app) {
     glEnable(GL_LIGHTING); 
     glEnable(GL_LIGHT0); 
     glEnable(GL_COLOR_MATERIAL);
+    // Biztosítjuk, hogy mind a környezeti, mind a direkt fény átvegye a lapok színeit
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE); 
     
     GLfloat fog_color[] = {0.05f, 0.05f, 0.05f, 1.0f};

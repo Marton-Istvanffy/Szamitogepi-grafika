@@ -1,7 +1,6 @@
 #ifndef APP_H
 #define APP_H
 
-#include <stdbool.h>
 #include "camera.h"
 #include "cube.h"
 
@@ -26,7 +25,6 @@ typedef struct {
     bool is_crouching;
 
     bool is_cube_mode; 
-    
     bool right_mouse_pressed;
     float orbit_distance;
 } App;
