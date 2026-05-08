@@ -1,5 +1,5 @@
 #include "particles.h"
-#include <GLFW/glfw3.h>
+#include <SDL2/SDL_opengl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>

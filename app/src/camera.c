@@ -1,6 +1,6 @@
 #include "camera.h"
 #include <math.h>
-#include <GLFW/glfw3.h>
+#include <SDL2/SDL.h>
 
 void camera_init(Camera* cam) {
     cam->position = (vec3){0.0f, 2.0f, 8.0f};
@@ -12,7 +12,7 @@ void camera_init(Camera* cam) {
     cam->sensitivity = 0.1f;
 }
 
-void camera_update_fps(Camera* cam, float deltaTime, const bool* keys, float* player_y, float* velocity_y, bool* is_grounded, bool is_crouching) {
+void camera_update_fps(Camera* cam, float deltaTime, const Uint8* keys, float* player_y, float* velocity_y, bool* is_grounded, bool is_crouching) {
     float current_speed = is_crouching ? 2.5f : cam->speed;
     float velocity = current_speed * deltaTime;
 
@@ -27,10 +27,10 @@ void camera_update_fps(Camera* cam, float deltaTime, const bool* keys, float* pl
     float len_r = sqrt(right_horiz.x*right_horiz.x + right_horiz.z*right_horiz.z);
     if(len_r > 0.001f) { right_horiz.x /= len_r; right_horiz.z /= len_r; }
 
-    if (keys[GLFW_KEY_W]) { cam->position.x += front_horiz.x * velocity; cam->position.z += front_horiz.z * velocity; }
-    if (keys[GLFW_KEY_S]) { cam->position.x -= front_horiz.x * velocity; cam->position.z -= front_horiz.z * velocity; }
-    if (keys[GLFW_KEY_A]) { cam->position.x -= right_horiz.x * velocity; cam->position.z -= right_horiz.z * velocity; }
-    if (keys[GLFW_KEY_D]) { cam->position.x += right_horiz.x * velocity; cam->position.z += right_horiz.z * velocity; }
+    if (keys[SDL_SCANCODE_W]) { cam->position.x += front_horiz.x * velocity; cam->position.z += front_horiz.z * velocity; }
+    if (keys[SDL_SCANCODE_S]) { cam->position.x -= front_horiz.x * velocity; cam->position.z -= front_horiz.z * velocity; }
+    if (keys[SDL_SCANCODE_A]) { cam->position.x -= right_horiz.x * velocity; cam->position.z -= right_horiz.z * velocity; }
+    if (keys[SDL_SCANCODE_D]) { cam->position.x += right_horiz.x * velocity; cam->position.z += right_horiz.z * velocity; }
 
     *velocity_y -= 15.0f * deltaTime;
     *player_y += *velocity_y * deltaTime;
@@ -39,7 +39,7 @@ void camera_update_fps(Camera* cam, float deltaTime, const bool* keys, float* pl
         *player_y = 0.0f; *velocity_y = 0.0f; *is_grounded = true;
     } else { *is_grounded = false; }
 
-    if (keys[GLFW_KEY_SPACE] && *is_grounded) {
+    if (keys[SDL_SCANCODE_SPACE] && *is_grounded) {
         *velocity_y = 6.0f; *is_grounded = false;
     }
 

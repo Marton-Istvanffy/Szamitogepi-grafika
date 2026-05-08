@@ -2,7 +2,6 @@
 #define CUBE_H
 
 #include <stdbool.h>
-#include "math3d.h"
 
 typedef struct {
     float transform[16];
@@ -15,18 +14,16 @@ typedef struct {
     int drag_axis;
     float drag_layer_coord;
     float drag_angle;
-    int picked_piece_id;
-    
-    bool is_animating;
-    float current_angle;
     float target_angle;
+    float current_angle;
+    bool is_animating;
+    int picked_piece_id;
 } RubikCube;
 
 void cube_init(RubikCube* cube);
-void cube_snap_and_bake(RubikCube* cube);
-void cube_scramble(RubikCube* cube);
 void cube_start_anim(RubikCube* cube);
 bool cube_update_anim(RubikCube* cube, float dt);
+void cube_scramble(RubikCube* cube);
 bool cube_is_solved(const RubikCube* cube);
 
 #endif

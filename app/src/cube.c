@@ -2,7 +2,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
-#include <GLFW/glfw3.h>
+#include <SDL2/SDL_opengl.h>
 
 static void set_identity(float* m) {
     memset(m, 0, 16 * sizeof(float));

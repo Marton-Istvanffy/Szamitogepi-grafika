@@ -1,9 +1,10 @@
 #ifndef PARTICLES_H
 #define PARTICLES_H
+
 #include "math3d.h"
 #include <stdbool.h>
 
-#define MAX_PARTICLES 1000 
+#define MAX_PARTICLES 100
 
 typedef struct {
     vec3 pos;
@@ -19,7 +20,8 @@ typedef struct {
 } ParticleSystem;
 
 void particles_init(ParticleSystem* ps);
-void particles_spawn_fireworks(ParticleSystem* ps); // ÚJ
+void particles_spawn_fireworks(ParticleSystem* ps);
 void particles_update(ParticleSystem* ps, float dt);
 void particles_render(const ParticleSystem* ps);
+
 #endif
