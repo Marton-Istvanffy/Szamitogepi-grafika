@@ -4,7 +4,9 @@
 #include <string.h>
 #include <math.h>
 
-void particles_init(ParticleSystem* ps) { memset(ps, 0, sizeof(ParticleSystem)); }
+void particles_init(ParticleSystem* ps) { 
+    memset(ps, 0, sizeof(ParticleSystem)); 
+}
 
 void particles_spawn_fireworks(ParticleSystem* ps) {
     for (int i = 0; i < MAX_PARTICLES; i++) {
