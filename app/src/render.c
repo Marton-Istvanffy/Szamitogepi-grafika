@@ -10,6 +10,7 @@ typedef struct {
     GLenum light_id;
 } CandlePlacement;
 
+// Render individual sub-cube
 static void draw_sub_cube(const SubCube* sub) {
     glBegin(GL_QUADS);
     float s = 0.48f;
@@ -22,6 +23,7 @@ static void draw_sub_cube(const SubCube* sub) {
     glEnd();
 }
 
+// Render procedural box
 static void draw_box(float x, float y, float z, float sx, float sy, float sz) {
     glPushMatrix();
     glTranslatef(x, y, z);
@@ -38,7 +40,7 @@ static void draw_box(float x, float y, float z, float sx, float sy, float sz) {
 }
 
 // Render fire effect
-static void draw_fire_particles(float cx, float cy, float cz, double time, float scale) {
+static void draw_fire_particles(float cx, float cy, float cz, double time, float scale, float intensity) {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
@@ -60,12 +62,20 @@ static void draw_fire_particles(float cx, float cy, float cz, double time, float
         float speed = 1.0f + s1 * 2.0f;
         float life = fmod((time * speed) + s2, 1.0f); 
         
-        float size = 0.7f * (1.0f - life) * scale;
-        float px = (s1 - 0.5f) * 2.0f * (1.0f - life) * scale; 
-        float pz = (s3 - 0.5f) * 2.0f * (1.0f - life) * scale;
-        float py = life * 6.0f * scale; 
+        float cur_scale = scale * (0.2f + 0.8f * (intensity > 1.0f ? 1.0f : intensity));
+        float size = 0.7f * (1.0f - life) * cur_scale;
+        float px = (s1 - 0.5f) * 2.0f * (1.0f - life) * cur_scale; 
+        float pz = (s3 - 0.5f) * 2.0f * (1.0f - life) * cur_scale;
+        float py = life * 6.0f * cur_scale; 
         
-        glColor4f(1.0f, 1.0f - life, 0.1f, 1.0f - life);
+        float r = 1.0f * intensity;
+        float g = (1.0f - life) * intensity;
+        float b = 0.1f * intensity;
+        if(r > 1.0f) r = 1.0f;
+        if(g > 1.0f) g = 1.0f;
+        if(b > 1.0f) b = 1.0f;
+        
+        glColor4f(r, g, b, 1.0f - life);
         
         glVertex3f(px - size, py, pz);
         glVertex3f(px + size, py, pz);
@@ -84,6 +94,7 @@ static void draw_fire_particles(float cx, float cy, float cz, double time, float
     glPopAttrib();
 }
 
+// Render sky box
 static void draw_sky(const App* app) {
     if (!app->scene.sky_texture_id) return;
     
@@ -238,6 +249,7 @@ static void draw_environment(const App* app) {
     glPopAttrib();
 }
 
+// Setup and draw candle
 static void setup_and_draw_candle(const App* app, CandlePlacement cp, float intensity) {
     glPushMatrix();
     glTranslatef(cp.x, cp.y, cp.z);
@@ -311,10 +323,10 @@ void render_scene(const App* app) {
     draw_environment(app);
     double t = (double)SDL_GetTicks() / 1000.0;
     
-    draw_fire_particles( 13.5f, -2.01f,  13.5f, t, 1.0f);
-    draw_fire_particles(-13.5f, -2.01f,  13.5f, t, 1.0f);
-    draw_fire_particles( 13.5f, -2.01f, -13.5f, t, 1.0f);
-    draw_fire_particles(-13.5f, -2.01f, -13.5f, t, 1.0f);
+    draw_fire_particles( 13.5f, -2.01f,  13.5f, t, 1.0f, app->scene.light_intensity);
+    draw_fire_particles(-13.5f, -2.01f,  13.5f, t, 1.0f, app->scene.light_intensity);
+    draw_fire_particles( 13.5f, -2.01f, -13.5f, t, 1.0f, app->scene.light_intensity);
+    draw_fire_particles(-13.5f, -2.01f, -13.5f, t, 1.0f, app->scene.light_intensity);
     
     CandlePlacement cnds[] = {
         { 4, -2.01f, 4, GL_LIGHT0 },
@@ -325,7 +337,7 @@ void render_scene(const App* app) {
         { -8, -2.01f, 0, GL_LIGHT5 }
     };
     for (int i = 0; i < 6; i++) {
-        draw_fire_particles(cnds[i].x, cnds[i].y + 1.25f, cnds[i].z, t, 0.15f);
+        draw_fire_particles(cnds[i].x, cnds[i].y + 1.25f, cnds[i].z, t, 0.15f, app->scene.light_intensity);
         setup_and_draw_candle(app, cnds[i], app->scene.light_intensity);
     }
     
@@ -382,6 +394,7 @@ void render_scene(const App* app) {
     }
 }
 
+// Handle object picking
 int get_clicked_piece(const App* app, double mx, double my, int win_w, int win_h, int fb_w, int fb_h) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_LIGHTING); glDisable(GL_FOG); glDisable(GL_DITHER);
