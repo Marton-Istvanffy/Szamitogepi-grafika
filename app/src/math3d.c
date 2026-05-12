@@ -23,6 +23,6 @@ void math3d_lookAt(vec3 eye, vec3 center, vec3 up) {
         s.z, v.z, -f.z, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f
     };
-    glMultMatrixf(m);
+    glMultMatrixf(m); 
     glTranslatef(-eye.x, -eye.y, -eye.z);
 }

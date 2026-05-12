@@ -10,7 +10,6 @@ typedef struct {
     GLenum light_id;
 } CandlePlacement;
 
-// Render individual sub-cube
 static void draw_sub_cube(const SubCube* sub) {
     glBegin(GL_QUADS);
     float s = 0.48f;
@@ -23,7 +22,6 @@ static void draw_sub_cube(const SubCube* sub) {
     glEnd();
 }
 
-// Render procedural box
 static void draw_box(float x, float y, float z, float sx, float sy, float sz) {
     glPushMatrix();
     glTranslatef(x, y, z);
@@ -39,7 +37,6 @@ static void draw_box(float x, float y, float z, float sx, float sy, float sz) {
     glPopMatrix();
 }
 
-// Render fire effect
 static void draw_fire_particles(float cx, float cy, float cz, double time, float scale, float intensity) {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glDisable(GL_LIGHTING);
@@ -94,7 +91,6 @@ static void draw_fire_particles(float cx, float cy, float cz, double time, float
     glPopAttrib();
 }
 
-// Render sky box
 static void draw_sky(const App* app) {
     if (!app->scene.sky_texture_id) return;
     
@@ -148,7 +144,6 @@ static void draw_sky(const App* app) {
     glPopAttrib();
 }
 
-// Render room environment
 static void draw_environment(const App* app) {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glEnable(GL_TEXTURE_2D);
@@ -249,7 +244,6 @@ static void draw_environment(const App* app) {
     glPopAttrib();
 }
 
-// Setup and draw candle
 static void setup_and_draw_candle(const App* app, CandlePlacement cp, float intensity) {
     glPushMatrix();
     glTranslatef(cp.x, cp.y, cp.z);
@@ -295,23 +289,9 @@ static void setup_and_draw_candle(const App* app, CandlePlacement cp, float inte
     glPopMatrix();
 }
 
-// Draw 3D scene
-void render_scene(const App* app) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
-    vec3 pos = app->player.camera.position;
-    vec3 front = app->player.camera.front;
-    vec3 up = app->player.camera.up;
-    vec3 center = {pos.x + front.x, pos.y + front.y, pos.z + front.z};
-    math3d_lookAt(pos, center, up);
-    
-    draw_sky(app);
-    
-    glEnable(GL_LIGHTING); 
-    glEnable(GL_COLOR_MATERIAL);
-    GLfloat fgc[] = {0.02f, 0.02f, 0.02f, 1.0f};
-    
+static void setup_fog(const App* app) {
     if (app->scene.is_fog_enabled) {
+        GLfloat fgc[] = {0.02f, 0.02f, 0.02f, 1.0f};
         glEnable(GL_FOG); 
         glFogfv(GL_FOG_COLOR, fgc); 
         glFogf(GL_FOG_DENSITY, 0.04f); 
@@ -319,10 +299,9 @@ void render_scene(const App* app) {
     } else {
         glDisable(GL_FOG);
     }
-    
-    draw_environment(app);
-    double t = (double)SDL_GetTicks() / 1000.0;
-    
+}
+
+static void render_all_candles_and_fires(const App* app, double t) {
     draw_fire_particles( 13.5f, -2.01f,  13.5f, t, 1.0f, app->scene.light_intensity);
     draw_fire_particles(-13.5f, -2.01f,  13.5f, t, 1.0f, app->scene.light_intensity);
     draw_fire_particles( 13.5f, -2.01f, -13.5f, t, 1.0f, app->scene.light_intensity);
@@ -340,7 +319,9 @@ void render_scene(const App* app) {
         draw_fire_particles(cnds[i].x, cnds[i].y + 1.25f, cnds[i].z, t, 0.15f, app->scene.light_intensity);
         setup_and_draw_candle(app, cnds[i], app->scene.light_intensity);
     }
-    
+}
+
+static void render_table_if_needed(const App* app) {
     if (!app->scene.is_cube_mode) {
         glPushMatrix();
         glEnable(GL_TEXTURE_2D);
@@ -361,7 +342,9 @@ void render_scene(const App* app) {
         glDisable(GL_TEXTURE_2D);
         glPopMatrix();
     }
-    
+}
+
+static void render_rubik_cube(const App* app) {
     for (int i = 0; i < 27; i++) {
         glPushMatrix();
         glTranslatef(0.0f, 1.58f, 0.0f);
@@ -377,8 +360,9 @@ void render_scene(const App* app) {
         draw_sub_cube(&app->scene.cube.pieces[i]);
         glPopMatrix();
     }
-    particles_render(&app->scene.particle_sys);
-    
+}
+
+static void render_crosshair(const App* app) {
     if (!app->scene.is_cube_mode) {
         glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity();
         glMatrixMode(GL_MODELVIEW); glPushMatrix(); glLoadIdentity();
@@ -394,14 +378,44 @@ void render_scene(const App* app) {
     }
 }
 
-// Handle object picking
+void render_scene(const App* app) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+    
+    vec3 pos = app->player.camera.position;
+    vec3 front = app->player.camera.front;
+    vec3 up = app->player.camera.up;
+    vec3 center = {pos.x + front.x, pos.y + front.y, pos.z + front.z};
+    math3d_lookAt(pos, center, up);
+    
+    draw_sky(app);
+    
+    glEnable(GL_LIGHTING); 
+    glEnable(GL_COLOR_MATERIAL);
+    
+    setup_fog(app);
+    draw_environment(app);
+    
+    double t = (double)SDL_GetTicks() / 1000.0;
+    
+    render_all_candles_and_fires(app, t);
+    render_table_if_needed(app);
+    render_rubik_cube(app);
+    particles_render(&app->scene.particle_sys);
+    render_crosshair(app);
+}
+
 int get_clicked_piece(const App* app, double mx, double my, int win_w, int win_h, int fb_w, int fb_h) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_LIGHTING); glDisable(GL_FOG); glDisable(GL_DITHER);
     glLoadIdentity();
-    vec3 pos = app->player.camera.position; vec3 front = app->player.camera.front; vec3 up = app->player.camera.up; 
+    
+    vec3 pos = app->player.camera.position; 
+    vec3 front = app->player.camera.front; 
+    vec3 up = app->player.camera.up; 
     vec3 center = {pos.x + front.x, pos.y + front.y, pos.z + front.z};
     math3d_lookAt(pos, center, up);
+    
     for (int i = 0; i < 27; i++) {
         glPushMatrix(); 
         glTranslatef(0.0f, 1.58f, 0.0f);
@@ -415,14 +429,18 @@ int get_clicked_piece(const App* app, double mx, double my, int win_w, int win_h
         glVertex3f(s,-s,-s); glVertex3f(s,-s,s); glVertex3f(s,s,s); glVertex3f(s,s,-s);
         glVertex3f(-s,s,-s); glVertex3f(s,s,-s); glVertex3f(s,s,s); glVertex3f(-s,s,s);
         glVertex3f(-s,-s,-s); glVertex3f(s,-s,-s); glVertex3f(s,-s,s); glVertex3f(-s,-s,s);
-        glEnd(); glPopMatrix();
+        glEnd(); 
+        glPopMatrix();
     }
+    
     int px = (mx < 0.0) ? fb_w/2 : (int)(mx * ((double)fb_w/win_w));
     int py = (mx < 0.0) ? fb_h/2 : (int)((win_h - my) * ((double)fb_h/win_h));
     unsigned char pxr[3];
     glReadPixels(px, py, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pxr);
+    
     if (app->scene.is_fog_enabled) glEnable(GL_FOG);
     glEnable(GL_LIGHTING); glEnable(GL_DITHER);
+    
     if (pxr[0] > 0 && pxr[0] <= 27) return pxr[0] - 1;
     return -1;
 }
